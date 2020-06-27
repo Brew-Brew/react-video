@@ -1,0 +1,31 @@
+.default {
+  width: 65vw;
+  height: 3px;
+  background-color: gray;
+  border-radius: 1.5px;
+}
+
+.bar {
+  position: relative;
+  height: 3px;
+  background-color: white;
+  border-radius: 1.5px;
+  & .controller {
+    -webkit-appearance: none !important;
+    position: absolute;
+    top: 0px;
+    margin: 0;
+    width: 65vw;
+    height: 3px;
+    background-color: transparent;
+    border-radius: 1.5px;
+    &::-webkit-slider-thumb {
+      -webkit-appearance: none !important;
+      width: 13px;
+      height: 13px;
+      border: solid 0.5px #e6e6e6;
+      border-radius: 50%;
+      background-color: white;
+    }
+  }
+}
