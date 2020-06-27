@@ -1,15 +1,8 @@
 import classNames from "classnames";
 import React, { memo, useEffect, useRef, useState } from "react";
 
-import pauseIcon from "./assets/pause.png";
-import playIcon from "./assets/play.png";
-import muteIcon from "./assets/mute.png";
-import volumeIcon from "./assets/volume.png";
-
-import toTimeString from "./totimeString";
-import ProgressBar from "./ProgressBar";
-
 import styles from "./video.module.scss";
+import Controlbar from "./Controlbar";
 
 interface IProps {
   className?: string;
@@ -19,8 +12,6 @@ interface IProps {
 const Video: React.FC<IProps> = ({ className, src }) => {
   const [nowPlaying, setNowPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
-  const [volumeClicked, setVolumeClicked] = useState(false);
-  const [isVisible, setVisible] = useState(false);
   const [showControl, setShowControl] = useState(false);
 
   const ref = useRef<HTMLVideoElement>(null);
@@ -29,18 +20,16 @@ const Video: React.FC<IProps> = ({ className, src }) => {
   const videoElement = ref && ref.current;
 
   const classProps = classNames(styles.video, className);
-  const startTimeClassProps = classNames(styles.text, styles.startTime);
-  const endTimeClassProps = classNames(styles.text, styles.endTime);
-  const videoSrc = src || "";
 
+  const videoSrc = src || "";
   const startTime = Math.floor(currentTime);
 
-  const observe = () => {
+  // 동영상 시간 업데이트 함수
+  const addTimeUpdate = () => {
     const observedVideoElement = ref && ref.current;
     if (observedVideoElement) {
       observedVideoElement.addEventListener("timeupdate", function () {
         setCurrentTime(observedVideoElement.currentTime);
-        !isVisible && setVisible(true);
       });
       setNowPlaying(true);
       observedVideoElement.play();
@@ -48,9 +37,10 @@ const Video: React.FC<IProps> = ({ className, src }) => {
   };
 
   useEffect(() => {
-    observe();
+    addTimeUpdate();
   }, []);
 
+  // progress 이동시켰을때 실행되는 함수
   const onProgressChange = (percent: number) => {
     if (!showControl) {
       setShowControl(true);
@@ -63,6 +53,7 @@ const Video: React.FC<IProps> = ({ className, src }) => {
     }
   };
 
+  // play icon 클릭했을떄 실행되는 함수
   const onPlayIconClick = () => {
     if (videoElement) {
       if (nowPlaying) {
@@ -75,48 +66,13 @@ const Video: React.FC<IProps> = ({ className, src }) => {
     }
   };
 
-  const onMouseDown = () => {
-    if (videoElement) {
-      videoElement.pause();
-    }
-  };
-
-  const onMouseUp = () => {
-    if (videoElement) {
-      // controller를 옮긴 시점에 currentTime이 최신화 되지 않아, 이를 위해 수정
-      videoElement.currentTime = currentTime;
-      nowPlaying ? videoElement.play() : videoElement.pause();
-    }
-  };
-
-  const playControlClassProps = classNames(styles.playWrapper, {
-    [styles.fadeIn]: showControl,
-  });
-
-  const controlBarClassProps = classNames(styles.controlBar, {
-    [styles.fadeIn]: showControl,
-  });
-
+  // control bar visible 관련 함수
   const handleControlVisible = () => {
     if (!showControl) {
       setShowControl(true);
       setTimeout(() => {
         setShowControl(false);
       }, 2000);
-    }
-  };
-
-  const handleVolume = () => {
-    if (volumeClicked) {
-      if (videoElement) {
-        videoElement.muted = true;
-      }
-      setVolumeClicked(false);
-    } else {
-      if (videoElement) {
-        videoElement.muted = false;
-      }
-      setVolumeClicked(true);
     }
   };
 
@@ -132,32 +88,16 @@ const Video: React.FC<IProps> = ({ className, src }) => {
       >
         <source src={videoSrc} type="video/mp4" />
       </video>
-      <div className={controlBarClassProps}>
-        <span className={startTimeClassProps}>{toTimeString(startTime)}</span>
-        <ProgressBar
-          max={totalTime}
-          value={currentTime}
-          className={styles.progressBar}
-          onChange={onProgressChange}
-          onMouseDown={onMouseDown}
-          onMouseUp={onMouseUp}
-        />
-        <span className={endTimeClassProps}>{toTimeString(totalTime)}</span>
-        <img
-          className={styles.volume}
-          src={volumeClicked ? volumeIcon : muteIcon}
-          onClick={handleVolume}
-        />
-      </div>
-      <div className={playControlClassProps}>
-        <div className={styles.playBg}>
-          <img
-            className={styles.playIcon}
-            src={nowPlaying ? pauseIcon : playIcon}
-            onClick={onPlayIconClick}
-          />
-        </div>
-      </div>
+      <Controlbar
+        onProgressChange={onProgressChange}
+        onPlayIconClick={onPlayIconClick}
+        totalTime={totalTime}
+        currentTime={currentTime}
+        startTime={startTime}
+        showControl={showControl}
+        nowPlaying={nowPlaying}
+        videoElement={videoElement}
+      />
     </div>
   );
 };
