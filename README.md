@@ -1,6 +1,6 @@
 ## react video custom example
 
-![image](https://user-images.githubusercontent.com/26598542/85918243-e0d94b00-b89b-11ea-8455-9599ebf0bfe4.gif)
+![image](https://user-images.githubusercontent.com/26598542/86140943-6a06b100-bb2c-11ea-999c-15d5f4560dba.gif)
 
 react video component custom 예제 repo
 
